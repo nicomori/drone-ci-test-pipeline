@@ -7,9 +7,9 @@ steps:
     image: alpine:3.19
     commands:
       - echo "Drone CI is running on Kubernetes!"
-      - echo "Pipeline triggered by ${DRONE_COMMIT_AUTHOR}"
-      - echo "Commit: ${DRONE_COMMIT_SHA:0:8}"
-      - echo "Branch: ${DRONE_BRANCH}"
+      - echo "Pipeline triggered by $DRONE_COMMIT_AUTHOR"
+      - echo "Commit $DRONE_COMMIT_SHA"
+      - echo "Branch $DRONE_BRANCH"
       - date
       - echo "All systems go!"
 
@@ -18,9 +18,9 @@ steps:
     commands:
       - echo "Running unit tests..."
       - sleep 2
-      - echo "Test 1: PASSED"
-      - echo "Test 2: PASSED"
-      - echo "Test 3: PASSED"
+      - echo "Test 1 PASSED"
+      - echo "Test 2 PASSED"
+      - echo "Test 3 PASSED"
       - echo "All tests passed!"
 
 trigger:
