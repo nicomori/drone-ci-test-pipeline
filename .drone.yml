@@ -23,6 +23,26 @@ steps:
       - echo "Test 3 PASSED"
       - echo "All tests passed!"
 
+  - name: send-metrics-to-datadog
+    image: curlimages/curl:8.5.0
+    environment:
+      DD_API_KEY:
+        from_secret: dd_api_key
+    commands:
+      - export TIMESTAMP=$(date +%s)
+      - 'curl -s -X POST "https://api.datadoghq.eu/api/v1/series" -H "Content-Type: application/json" -H "DD-API-KEY: $DD_API_KEY" -d "{\"series\":[{\"metric\":\"drone.pipeline.builds_total\",\"type\":\"count\",\"points\":[[$TIMESTAMP,1]],\"tags\":[\"pipeline:$DRONE_REPO_NAME\",\"branch:$DRONE_BRANCH\",\"status:success\",\"env:poc\",\"project:drone-ci-poc\"]},{\"metric\":\"drone.pipeline.build_number\",\"type\":\"gauge\",\"points\":[[$TIMESTAMP,$DRONE_BUILD_NUMBER]],\"tags\":[\"pipeline:$DRONE_REPO_NAME\",\"branch:$DRONE_BRANCH\",\"env:poc\"]}]}"'
+      - echo "Metrics sent to Datadog"
+
+  - name: send-event-to-datadog
+    image: curlimages/curl:8.5.0
+    environment:
+      DD_API_KEY:
+        from_secret: dd_api_key
+    commands:
+      - export TIMESTAMP=$(date +%s)
+      - 'curl -s -X POST "https://api.datadoghq.eu/api/v1/events" -H "Content-Type: application/json" -H "DD-API-KEY: $DD_API_KEY" -d "{\"title\":\"Drone Build #$DRONE_BUILD_NUMBER completed\",\"text\":\"Pipeline $DRONE_REPO_NAME branch $DRONE_BRANCH completed. Commit $DRONE_COMMIT_SHA\",\"priority\":\"normal\",\"tags\":[\"pipeline:$DRONE_REPO_NAME\",\"branch:$DRONE_BRANCH\",\"env:poc\",\"source:drone-ci\"],\"alert_type\":\"success\",\"source_type_name\":\"DRONE\"}"'
+      - echo "Event sent to Datadog"
+
 trigger:
   event:
     - push
